@@ -107,9 +107,61 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f1da36', end
 }
 
 #gorseval{
-    background-image: url(gorseval-icon.png)
+    background-image: url(gorseval-icon.png);
 }
 
 #sabetha{
-    background-image: url(sabetha-icon.png)
+    background-image: url(sabetha-icon.png);
+}
+
+#slothasor{
+    background-image: url(slothasor-icon.png);
+}
+
+#matthias{
+    background-image: url(matthias-icon.png);
+}
+
+#keep-construct{
+    background-image: url(keep-construct-icon.png);
+}
+
+#xera{
+    background-image: url(xera-icon.png);
+}
+
+#cairn{
+    background-image: url(cairn-icon.png);
+}
+
+#mursaat-overseer{
+    background-image: url(mursaat-overseer-icon.png);
+}
+
+#samarog{
+    background-image: url(samarog-icon.png);
+}
+
+#deimos{
+    background-image: url(deimos-icon.png);
+}
+
+#soulless-horror{
+    background-image: url(soulless-horror-icon.png);
+}
+
+#dhuum{
+    background-image: url(dhuum-icon.png);
+}
+
+#amalgamate{
+    background-image: url(amalgamate-icon.png);
+}
+
+#largos-twins{
+    background-image: url(largos-twins-icon.png);
+}
+
+#qadim{
+    background-image: url(qadim-icon.png);
 }

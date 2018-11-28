@@ -8,7 +8,27 @@
         <script src="Chart.bundle.min.js" type="text/javascript"></script>
     
         <script type="text/javascript">
+            
+            var myChart = null;
             $(document).ready(function(){
+                
+                var chart = $('.chart')[0];    
+                var ctx = chart.getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            custom: function(tooltip) {
+                                if (!tooltip) return;
+                                // disable displaying the color box;
+                                tooltip.displayColors = false;
+                            }
+                        }
+                    }
+                });
                 
                 $('.boss-button').click(function(){
                     var bossName = toTitleCase($(this).attr('id').replace("-", " "));
@@ -24,10 +44,9 @@
                     
                     $(hidden).addClass('bkg-current');
                 });                
+                
             });
-        </script>
-        
-        <script>
+
             function doChart(boss){
                 var url = "https://script.google.com/macros/s/AKfycbxqRCbI0jlZUwm1-P5KHFACJxFL5yn-Oy-oJtT_Scupk89v9FjG/exec"
                 
@@ -39,12 +58,12 @@
                     'url':url,
                     'data': params,
                     'success': function(result){
-                        createChart(result);
+                        updateChart(result);
                     }
                 });
             }
             
-            function createChart(data){
+            function updateChart(data){
                 console.log(data);
                 var logs = data.logs;
                 var dates = [];
@@ -59,31 +78,16 @@
                 console.log(dates);
                 console.log(times);
                 console.log(links);
-                var chart = $('.chart')[0];    
-                var ctx = chart.getContext('2d');
-                var myChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: dates,
-                        datasets: [{
+
+                myChart.data.labels = dates;
+                myChart.data.datasets = [];
+                myChart.data.datasets.push({
                             data: times,
                             lineTension: 0,
                             fill: false
-                        }
-//                                   , 
-//                        {
-//                            label: "reference",
-//                            data:Array.apply(null, new Array(6)).map(Number.prototype.valueOf, 7),
-//                            pointRadius:0
-//                        }
-                                  ]
-                    },
-                    options: {
-                        legend: {
-                            display: false
-                        },
-                        scales:{
-                            yAxes:[{
+                        });
+                myChart.options.scales.yAxes = [];
+                myChart.options.scales.yAxes.push({
                                 display: true,
                                 ticks:{
                                     beginAtZero: true,
@@ -91,30 +95,22 @@
                                         return formatTime(value);
                                     }
                                 }
-                            }]
-                        },
-                        tooltips: {
-                            custom: function(tooltip) {
-                                if (!tooltip) return;
-                                // disable displaying the color box;
-                                    tooltip.displayColors = false;
-                                },
-                            callbacks: {
-                                title: function(){return data.boss;},
-                                label: function(tooltipItem){
+                            });
+                myChart.options.tooltips.callbacks.title = function(){
+                                                            return data.boss;
+                                                        };
+                myChart.options.tooltips.callbacks.label = function(tooltipItem){
                                     return [tooltipItem.xLabel, formatTime(tooltipItem.yLabel)]
-                                }
-                            }
-                        },
-                        onClick: function(evt){
+                                };
+                myChart.options.onClick = function(evt){
                             var element = myChart.getElementsAtEvent(evt);
                             if (element.length > 0){
                                 var win = window.open(links[element[0]._index], '_blank');
                                 win.focus();
                             }
-                        }
-                    }
-                });
+            
+                };
+                myChart.update();
             }
             
             function formatTime(value){
@@ -144,19 +140,19 @@
                     <div class="button-wrapper"><button class="boss-button" id="vale-guardian"></button></div>
                     <div class="button-wrapper"><button class="boss-button" id="gorseval"></button></div>
                     <div class="button-wrapper"><button class="boss-button" id="sabetha"></button></div>
-                    <div class="button-wrapper"><button class="boss-button">Slothasaur</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Matthias</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Keep Construct</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Xera</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Cairn</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Mursaat Overseer</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Samarog</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Deimos</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Souless Horror</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Dhuum</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Conjured Amalgamate</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Largos</button></div>
-                    <div class="button-wrapper"><button class="boss-button">Qadim</button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="slothasor"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="matthias"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="keep-construct"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="xera"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="cairn"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="mursaat-overseer"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="samarog"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="deimos"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="soulless-horror"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="dhuum"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="amalgamate"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="largos-twins"></button></div>
+                    <div class="button-wrapper"><button class="boss-button" id="qadim"></button></div>
                 </div>
                 <div class="chart-holder">
                     <canvas oncontextmenu="return false;" class="chart"></canvas>
