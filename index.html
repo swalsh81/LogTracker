@@ -25,7 +25,9 @@
                                 if (!tooltip) return;
                                 // disable displaying the color box;
                                 tooltip.displayColors = false;
-                            }
+                            },
+                            mode: 'x',
+                            intersect: false
                         },
                         elements:{
                             point:{
@@ -96,6 +98,17 @@
                             lineTension: 0,
                             fill: false
                         });
+                
+                for(var i = 0; i < data.referenceTimes.length; i++){
+                    myChart.data.datasets.push({
+                        data: Array.apply(null, new Array(logs.length)).map(Number.prototype.valueOf, parseFloat(data.referenceTimes[i].time)), 
+                        radius: 0,
+                        fill:false,
+                        borderWidth: 2,
+                        borderColor: 'rgba(0,0,0,.4)'                        
+                    });
+                }
+                
                 myChart.options.scales.yAxes = [];
                 myChart.options.scales.yAxes.push({
                                 display: true,
@@ -104,13 +117,18 @@
                                     callback:function(value){
                                         return formatTime(value);
                                     }
-                                }
+                                },
+                                
                             });
                 myChart.options.tooltips.callbacks.title = function(){
                                                             return data.boss;
                                                         };
                 myChart.options.tooltips.callbacks.label = function(tooltipItem){
-                                    return [tooltipItem.xLabel, formatTime(tooltipItem.yLabel)]
+                                    if(tooltipItem.datasetIndex == 0){
+                                        return ["eV " + tooltipItem.xLabel, formatTime(tooltipItem.yLabel)];
+                                    }else if(tooltipItem.datasetIndex > 0){
+                                        return [" ",data.referenceTimes[tooltipItem.datasetIndex-1].note, formatTime(data.referenceTimes[tooltipItem.datasetIndex-1].time)];   
+                                    }                                   
                                 };
                 myChart.options.onClick = function(evt){
                             var element = myChart.getElementsAtEvent(evt);
