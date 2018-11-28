@@ -26,6 +26,16 @@
                                 // disable displaying the color box;
                                 tooltip.displayColors = false;
                             }
+                        },
+                        elements:{
+                            point:{
+                                radius: 5,
+                                borderWidth: 2,
+                                hitRadius: 2,
+                                borderColor:'rgba(0,0,0,.6)',
+                                backgroundColor: 'rgba(0,0,0,0)',
+                                hoverRadius: 8
+                            }
                         }
                     }
                 });
@@ -133,8 +143,11 @@
         </script>
     </head>
     <body>
-        <div class="bkg-holder"></div>
-        <div class="bkg-current bkg-holder"></div>
+
+        <div class="bkg bkg-holder"></div>
+        <div class="bkg bkg-current bkg-holder"></div>
+        <div class="bkg bkg-ev logo-bkg-gradient"></div>
+        
         <div class="container" id="main-div">
                 <div class="button-row">
                     <div class="button-wrapper"><button class="boss-button" id="vale-guardian"></button></div>
