@@ -5,21 +5,67 @@
         <title>title</title>
         <link rel="stylesheet" href="stylesheet.css" type="text/css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
-        <script src="Chart.bundle.min.js" type="text/javascript"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.3/dist/Chart.bundle.min.js" type="text/javascript"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js" type="text/javascript"></script>
     
         <script type="text/javascript">
             
-            var myChart = null;
+            
             $(document).ready(function(){
                 
+                $('.boss-button').click(function(){
+                    var bossName = toTitleCase($(this).attr('id').replace("-", " "));
+                    console.log("Get: " + bossName)
+                    getData(bossName);
+                    
+                    var id = $(this).attr('id');
+                    
+                    var hidden = $('.bkg-holder:not(.bkg-current)');
+                    $(hidden).css('background-image', "url('" + id + ".jpg')");
+                    
+                    $('.bkg-current').removeClass('bkg-current');
+                    
+                    $(hidden).addClass('bkg-current');
+                });  
+                
+                setupChart();
+            });
+            
+            var myChart = null;
+            var logs = [];
+            var dates = [];
+            var times = [];
+            var links = [];
+            var refTimes = [];
+            var boss = "";
+            
+            function setupChart(){
                 var chart = $('.chart')[0];    
                 var ctx = chart.getContext('2d');
                 myChart = new Chart(ctx, {
                     type: 'line',
+                    data:{
+                        labels:dates,
+                        datasets:[{
+                            data:times,
+                            datalabels:{
+                                display:false
+                            },
+                            lineTension: .4,
+                            fill: false
+                        }],
+                    },
                     options: {
                         legend: {
                             display: false
                         },
+                        onClick: function(evt){
+                                    var element = myChart.getElementsAtEvent(evt);
+                                    if (element.length > 0){
+                                        var win = window.open(links[element[0]._index], '_blank');
+                                        win.focus();
+                                    }        
+                                },
                         tooltips: {
                             custom: function(tooltip) {
                                 if (!tooltip) return;
@@ -27,7 +73,18 @@
                                 tooltip.displayColors = false;
                             },
                             mode: 'x',
-                            intersect: false
+                            intersect: false,
+                            position:'nearest',
+                            callbacks:{
+                                title: function(){return boss;},
+                                label: function(tooltipItem){
+                                    if(tooltipItem.datasetIndex == 0){
+                                        return ["eV " + tooltipItem.xLabel, formatTime(tooltipItem.yLabel)];
+                                    }else if(tooltipItem.datasetIndex > 0){
+                                        return [" ",refTimes[tooltipItem.datasetIndex-1].note, formatTime(refTimes[tooltipItem.datasetIndex-1].time)];   
+                                    }                                   
+                                }
+                            }
                         },
                         elements:{
                             point:{
@@ -38,28 +95,23 @@
                                 backgroundColor: 'rgba(0,0,0,0)',
                                 hoverRadius: 8
                             }
+                        },
+                        scales:{
+                            yAxes:[{
+                                display: true,
+                                ticks:{
+                                    beginAtZero: true,
+                                    callback:function(value){
+                                        return formatTime(value);
+                                    }
+                                }
+                            }],
                         }
                     }
                 });
-                
-                $('.boss-button').click(function(){
-                    var bossName = toTitleCase($(this).attr('id').replace("-", " "));
-                    console.log("Get: " + bossName)
-                    doChart(bossName);
-                    
-                    var id = $(this).attr('id');
-                    
-                    var hidden = $('.bkg-holder:not(.bkg-current)');
-                    $(hidden).css('background-image', "url('" + id + ".jpg')");
-                    
-                    $('.bkg-current').removeClass('bkg-current');
-                    
-                    $(hidden).addClass('bkg-current');
-                });                
-                
-            });
+            }
 
-            function doChart(boss){
+            function getData(boss){
                 var url = "https://script.google.com/macros/s/AKfycbxqRCbI0jlZUwm1-P5KHFACJxFL5yn-Oy-oJtT_Scupk89v9FjG/exec"
                 
                 var params = {
@@ -76,68 +128,60 @@
             }
             
             function updateChart(data){
-                console.log(data);
-                var logs = data.logs;
-                var dates = [];
-                var times = [];
-                var links = [];
+                dates = [];
+                times = [];
+                links = [];
+                logs = data.logs;
+                refTimes = data.referenceTimes;
                 
                 for(var i = 0; i < logs.length; i++){
                     dates.push(logs[i].date);
                     times.push(logs[i].time);
                     links.push(logs[i].link);
                 }
-                console.log(dates);
-                console.log(times);
-                console.log(links);
-
+                
+                var oldCount = Math.min(myChart.data.datasets.length, refTimes.length + 1);
+                
+                myChart.data.datasets.length = oldCount;
+                
+                myChart.data.datasets[0].data = times;
                 myChart.data.labels = dates;
-                myChart.data.datasets = [];
-                myChart.data.datasets.push({
-                            data: times,
-                            lineTension: 0,
-                            fill: false
-                        });
                 
-                for(var i = 0; i < data.referenceTimes.length; i++){
-                    myChart.data.datasets.push({
-                        data: Array.apply(null, new Array(logs.length)).map(Number.prototype.valueOf, parseFloat(data.referenceTimes[i].time)), 
-                        radius: 0,
-                        fill:false,
-                        borderWidth: 2,
-                        borderColor: 'rgba(0,0,0,.4)'                        
-                    });
-                }
+                var startingCount = 1;
+                var addedCount = startingCount;
                 
-                myChart.options.scales.yAxes = [];
-                myChart.options.scales.yAxes.push({
-                                display: true,
-                                ticks:{
-                                    beginAtZero: true,
-                                    callback:function(value){
-                                        return formatTime(value);
+                for(var i = 0; i < refTimes.length; i++){
+                    if(addedCount < oldCount){
+                        myChart.data.datasets[addedCount].data = Array.apply(null, new Array(logs.length)).map(Number.prototype.valueOf, parseFloat(refTimes[i].time));
+                    }else{
+                    
+                        myChart.data.datasets.push({
+                            data: Array.apply(null, new Array(logs.length)).map(Number.prototype.valueOf, parseFloat(refTimes[i].time)), 
+                            radius: 0,
+                            fill:false,
+                            borderWidth: 1.5,
+                            borderColor: 'rgba(0,0,0,.4)',
+                            datalabels:{
+                                display:function(context){
+                                    var index = context.dataIndex;
+                                    if(index == 0){
+                                        return true;
+                                    }else{
+                                        return false;
                                     }
                                 },
-                                
-                            });
-                myChart.options.tooltips.callbacks.title = function(){
-                                                            return data.boss;
-                                                        };
-                myChart.options.tooltips.callbacks.label = function(tooltipItem){
-                                    if(tooltipItem.datasetIndex == 0){
-                                        return ["eV " + tooltipItem.xLabel, formatTime(tooltipItem.yLabel)];
-                                    }else if(tooltipItem.datasetIndex > 0){
-                                        return [" ",data.referenceTimes[tooltipItem.datasetIndex-1].note, formatTime(data.referenceTimes[tooltipItem.datasetIndex-1].time)];   
-                                    }                                   
-                                };
-                myChart.options.onClick = function(evt){
-                            var element = myChart.getElementsAtEvent(evt);
-                            if (element.length > 0){
-                                var win = window.open(links[element[0]._index], '_blank');
-                                win.focus();
+                                align:'right',
+                                backgroundColor:'rgba(255,255,255,.85)',
+                                borderColor:'rgba(0,0,0,.6)',
+                                borderRadius: 4,
+                                formatter: function(value, context){
+                                    return refTimes[context.datasetIndex - oldCount].note + " " + formatTime(value);
+                                }
                             }
-            
-                };
+                        });
+                    }
+                    addedCount++;
+                }            
                 myChart.update();
             }
             
@@ -148,7 +192,13 @@
                 var secs = value % 60;
                 value -= secs;
                 var min = value/60;
-                return min + ":" + (secs + mils).toFixed(3);
+                var str = min + ":";
+                if (mils == 0){
+                    str += secs.toString().padStart(2, '0');
+                }else{
+                    str += (secs + mils).toFixed(3).padStart(6,'0');
+                }
+                return str;
             }
         </script>
         
