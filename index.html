@@ -52,8 +52,18 @@
                                 display:false
                             },
                             lineTension: .4,
-                            fill: false
-                        }],
+                            fill: false,
+                            borderWidth: 2,
+                            borderColor:[
+                                'rgba(255,215,64,.8)'
+                            ],
+                            pointRadius: 5,
+                            pointBorderWidth: 2,
+                            pointHitRadius: 2,
+                            pointBorderColor:'rgba(255,215,64,.8)',
+                            pointBackgroundColor: 'rgba(0,0,0,0)',
+                            pointHoverRadius: 8
+                        }],   
                     },
                     options: {
                         legend: {
@@ -84,21 +94,6 @@
                                         return [" ",refTimes[tooltipItem.datasetIndex-1].note, formatTime(refTimes[tooltipItem.datasetIndex-1].time)];   
                                     }                                   
                                 }
-                            }
-                        },
-                        elements:{
-                            point:{
-                                radius: 5,
-                                borderWidth: 2,
-                                hitRadius: 2,
-                                borderColor:'rgba(255,215,64,.8)',
-                                backgroundColor: 'rgba(0,0,0,0)',
-                                hoverRadius: 8
-                            },
-                            line:{
-                                borderWidth:2,
-                                backgroundColor:'rgba(255,215,64,.8)',
-                                borderColor:'rgba(255,215,64,.8)'                                
                             }
                         },
                         scales:{
@@ -151,6 +146,12 @@
                 logs = data.logs;
                 refTimes = data.referenceTimes;
                 
+                for(var i = 0; i < refTimes.length; i++){
+                    if(refTimes[i].color == ""){
+                        refTimes[i].color = 'rgba(255,215,64,.8)';
+                    }
+                }
+                
                 for(var i = 0; i < logs.length; i++){
                     dates.push(logs[i].date);
                     times.push(logs[i].time);
@@ -170,6 +171,9 @@
                 for(var i = 0; i < refTimes.length; i++){
                     if(addedCount < oldCount){
                         myChart.data.datasets[addedCount].data = Array.apply(null, new Array(logs.length)).map(Number.prototype.valueOf, parseFloat(refTimes[i].time));
+                        
+                        myChart.data.datasets[addedCount].borderColor = refTimes[i].color;
+                        myChart.data.datasets[addedCount].pointBorderColor = refTimes[i].color;
                     }else{
                     
                         myChart.data.datasets.push({
@@ -177,6 +181,8 @@
                             radius: 0,
                             fill:false,
                             borderWidth: 1.5,
+                            borderColor: refTimes[i].color,
+                            pointBorderColor: refTimes[i].color,
                             datalabels:{
                                 display:function(context){
                                     var index = context.dataIndex;
