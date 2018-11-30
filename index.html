@@ -91,21 +91,38 @@
                                 radius: 5,
                                 borderWidth: 2,
                                 hitRadius: 2,
-                                borderColor:'rgba(0,0,0,.6)',
+                                borderColor:'rgba(255,215,64,.8)',
                                 backgroundColor: 'rgba(0,0,0,0)',
                                 hoverRadius: 8
+                            },
+                            line:{
+                                borderWidth:2,
+                                backgroundColor:'rgba(255,215,64,.8)',
+                                borderColor:'rgba(255,215,64,.8)'                                
                             }
                         },
                         scales:{
                             yAxes:[{
                                 display: true,
+                                gridLines:{
+                                    color:'rgba(250,250,250,.5)'
+                                },
                                 ticks:{
                                     beginAtZero: true,
+                                    fontColor:'rgba(250,250,250,.75)',
                                     callback:function(value){
                                         return formatTime(value);
                                     }
                                 }
                             }],
+                            xAxes:[{
+                                gridLines:{
+                                    color:'rgba(250,250,250,.5)'
+                                },
+                                ticks:{
+                                    fontColor:'rgba(250,250,250,.75)',
+                                }
+                            }]
                         }
                     }
                 });
@@ -160,7 +177,6 @@
                             radius: 0,
                             fill:false,
                             borderWidth: 1.5,
-                            borderColor: 'rgba(0,0,0,.4)',
                             datalabels:{
                                 display:function(context){
                                     var index = context.dataIndex;
@@ -175,7 +191,7 @@
                                 borderColor:'rgba(0,0,0,.6)',
                                 borderRadius: 4,
                                 formatter: function(value, context){
-                                    return refTimes[context.datasetIndex - oldCount].note + " " + formatTime(value);
+                                    return refTimes[context.datasetIndex - oldCount].note + " - " + formatTime(value);
                                 }
                             }
                         });
