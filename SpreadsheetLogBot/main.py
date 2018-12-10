@@ -176,7 +176,13 @@ class bot:
             for boss in data.bosses:
                 jsonMessage = post.Raidar()
                 browser = self.getPage(browser, "https://www.gw2raidar.com/global_stats/%i/area-%i" % (era["id"], boss["id"]))
-
+                # browser.get("https://www.gw2raidar.com/global_stats/%i/area-%i" % (era["id"], boss["id"]))
+                #
+                # try:
+                #     WebDriverWait(browser, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "label[for='30check']")))
+                #     print("Page is ready!")
+                # except TimeoutException:
+                #     print("Loading took too much time!")
 
                 perc = [30, 50, 60, 70, 80, 90, 99]
 
@@ -192,7 +198,7 @@ class bot:
                         val = browser.find_element_by_css_selector('div.r-duration-item.r-bg-' + str(p))
                         jsonMessage.addData(boss, era, p, val.text)
                         # a=1
-                    except NoSuchElementException as e:
+                    except Exception as e:
                         print(e)
                         print("None for %s at %i during %s" % (boss, p, "recent"))
 
@@ -201,14 +207,14 @@ class bot:
 
     def getPage(self, browser, link):
         browser.get(link)
+
         try:
             WebDriverWait(browser, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "label[for='30check']")))
             print("Page is ready!")
             return browser
         except TimeoutException:
-            print("Loading took too much time! - retrying")
-            self.getPage(browser, link)
-
+            print("Loading took too much time!")
+            return self.getPage(browser, link)
 
 
 if __name__== "__main__":
